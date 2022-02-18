@@ -1,14 +1,13 @@
 import abc
-import sys
+from FeatureCloud.cli.cli import Controller
 
 
 class TestWorkFlow(abc.ABC):
-    def __init__(self, controller_host, channel, query_interval):
+    def __init__(self, controller_hosts, channels, query_intervals):
         self.apps = []
-        self.controller_host = controller_host
-        self.channel = channel
-        self.query_interval = query_interval
         self.executed_app = 0
+        self.controllers = [Controller(ctrl, ch, q) for ctrl, ch, q in zip(controller_hosts, channels, query_intervals)]
+        self.default_res_dir_name = "AppResSults"
 
     @abc.abstractmethod
     def register_apps(self):
@@ -20,29 +19,58 @@ class TestWorkFlow(abc.ABC):
 
     def register(self, app):
         self.apps.append(app)
+        clients_dirs = "\n\t\t".join(app.clients_path)
+        msg = f"{app.app_image} app is registered:\n" \
+              f"\tController: {app.controller_host}\n" \
+              f"\tClient data:\n" \
+              f"\t\t{clients_dirs}\n" \
+              f"\tGeneric data: {app.generic_dir}\n" \
+              f"\tResult dir: {app.results_path}"
+        print(msg)
 
-    def stop(self):
-        self.apps[self.executed_app].stop(self.controller_host)
+    def stop(self, controller_ind: int or None = None):
+        if controller_ind is None:
+            # Stop apps on all running controllers
+            for ctrl in self.controllers:
+                for test_id in ctrl.list():
+                    ctrl.stop(test_id)
+        else:
+            # Stop apps on controller_ind controller
+            for test_id in self.controllers[controller_ind].list():
+                self.controllers[controller_ind].stop(test_id)
 
-    def delete(self):
-        pass
+    def delete(self,  controller_ind: int or None = None):
+        if controller_ind is None:
+            # Delete apps on all running controllers
+            for ctrl in self.controllers:
+                for test_id in ctrl.list():
+                    ctrl.delete(test_id)
+        else:
+            # Delete apps on controller_ind controller
+            for test_id in self.controllers[controller_ind].list():
+                self.controllers[controller_ind].delete(test_id)
 
-    def list(self):
+    def list(self, controller_ind: int, format: str):
         print("list of apps or call apps' list methods")
+        if controller_ind is None:
+            ctrl_list = []
+            # Get info of apps on all running controllers
+            for ctrl in self.controllers:
+                ctrl_list.append(ctrl.list(format))
+            return ctrl_list
+        return self.controllers[controller_ind].list(format)
 
-    # def info(self, controller_host: str, test_id: str or int, format: str):
-    #     cli.info(controller_host, test_id, format)
-    #
-    # def traffic(self, controller_host: str, test_id: str or int, format: str):
-    #     cli.traffic(controller_host, test_id, format)
-    #
-    # def logs(self, controller_host: str, test_id: str or int, instance_id: str or int, from_param: str):
-    #     cli.logs(controller_host, test_id, instance_id, from_param)
+    def info(self, format: str, controller_ind: int or None = None, ):
+        info_list = []
+        if controller_ind is None:
+            # Get info of apps on all running controllers
+            for ctrl in self.controllers:
+                for test_id in ctrl.list():
+                    info_list.append([ctrl.controller_host, ctrl.info(test_id, format)])
+        else:
+            # Get info of apps on controller_ind controller
+            ctrl = self.controllers[controller_ind]
+            for test_id in ctrl.list():
+                info_list.append([ctrl.controller_host, ctrl.info(test_id, format)])
+        return info_list
 
-
-def run_workflow(wf_dir, **kwargs):
-    sys.path.append(wf_dir)
-    from example_wf import WorkFlow
-    wf = WorkFlow(**kwargs)
-    wf.register_apps()
-    wf.run()
