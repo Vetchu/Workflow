@@ -5,6 +5,17 @@ from functools import partial
 
 
 class WorkFlow(TestWorkFlow):
+    """ Example workflow containing following apps:
+        1- featurecloud.ai/fc_cross_validation
+        2- featurecloud.ai/basic_rf
+        3- featurecloud.ai/fc_roc
+
+        Methods:
+        --------
+        register_apps(): registering the apps
+        run(): tunning apps with the same order as registration
+
+    """
     def __init__(self, controller_hosts: list, channels: list, query_intervals: list):
         super().__init__(controller_hosts, channels, query_intervals)
 
@@ -23,6 +34,9 @@ class WorkFlow(TestWorkFlow):
                                query_interval=int(query_intervals[0]))
 
     def register_apps(self):
+        """ Registering the three apps.
+
+        """
         app_id = 0
         app1 = self.TestApp(app_id=app_id, app_image="featurecloud.ai/fc_cross_validation")
         self.register(app1)
@@ -36,6 +50,16 @@ class WorkFlow(TestWorkFlow):
         self.register(app3)
 
     def run(self):
+        """ Running apps with the same registration order,
+            logging the app execution,
+            setting the ID
+            waiting until the app execution is finished
+            extracting the result to the app's directory
+            Waiting until the extraction is over
+            Delete the test run for the app
+            Copy the results as data for the next app
+
+        """
         print("Workflow execution starts ...")
         for i, app in enumerate(self.apps):
             app.clean_dirs(self.default_res_dir_name)
