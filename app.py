@@ -13,8 +13,7 @@ class TestApp(Controller):
     Attributes:
     -----------
         app_image: str
-            image name of the app in FeatureCloud docker repository,
-            the name dose not incolve in
+            image name of the app in FeatureCloud docker repository
         test_id: int
             ID of the test running on a specific controller.
         n_clients: int

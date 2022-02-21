@@ -13,7 +13,7 @@ class WorkFlow(TestWorkFlow):
         Methods:
         --------
         register_apps(): registering the apps
-        run(): tunning apps with the same order as registration
+        run(): running apps with the same order as registration
 
     """
     def __init__(self, controller_hosts: list, channels: list, query_intervals: list):

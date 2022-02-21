@@ -28,7 +28,7 @@ class TestWorkFlow(abc.ABC):
         info(format, controller_ind):
     """
 
-    def __init__(self, controller_hosts, channels, query_intervals):
+    def __init__(self, controller_hosts: list, channels: list, query_intervals: list):
         self.apps = []
         self.executed_app = 0
         self.controllers = [Controller(ctrl, ch, q) for ctrl, ch, q in zip(controller_hosts, channels, query_intervals)]
