@@ -8,13 +8,11 @@ class TestWorkFlow(abc.ABC):
         Non-linear streams
     Attributes:
     -----------
-        apps: list
-            List of instances of TestApp in the workflow
+        apps: list of instances of TestApp in the workflow
         executed_app: int
             Indicator of the executed app
             Default = 0
-        controllers: list
-            list of instances of Controller class
+        controller: an instance of Controller class
         default_res_dir_name: str
             the dir-name of apps' results
     Methods:
@@ -28,10 +26,10 @@ class TestWorkFlow(abc.ABC):
         info(format, controller_ind):
     """
 
-    def __init__(self, controller_hosts: list, channels: list, query_intervals: list):
+    def __init__(self, controller_host: str, channel: str, query_interval: int):
         self.apps = []
         self.executed_app = 0
-        self.controllers = [Controller(ctrl, ch, q) for ctrl, ch, q in zip(controller_hosts, channels, query_intervals)]
+        self.controller = Controller(controller_host, channel, query_interval)
         self.default_res_dir_name = "AppResSults"
 
     @abc.abstractmethod
@@ -67,103 +65,26 @@ class TestWorkFlow(abc.ABC):
               f"\tResult dir: {app.results_path}"
         print(msg)
 
-    def stop(self, controller_ind: int or None = None):
-        """ Stop all tests in the specified controller or all of them.
-
-        Parameters
-        ----------
-        controller_ind: int or None
-            non-negative integer as an index of target controller
-            or None for all controller
+    def stop(self):
+        """ Stop all tests in the controller.
 
         """
-        if controller_ind is None:
-            # Stop apps on all running controllers
-            for ctrl in self.controllers:
-                for test_id in ctrl.list():
-                    ctrl.stop(test_id)
-        elif self.controller_exist(controller_ind):
-            # Stop apps on controller_ind controller
-            for test_id in self.controllers[controller_ind].list():
-                self.controllers[controller_ind].stop(test_id)
+        for test_id in self.controller.list():
+            self.controller.stop(test_id)
 
-    def delete(self, controller_ind: int or None = None):
-        """ Delete all tests in the specified controller or all of them.
-
-        Parameters
-        ----------
-        controller_ind: int or None
-            non-negative integer as an index of target controller
-            or None for all controller
+    def delete(self):
+        """ Delete all tests in the controller.
 
         """
-        if controller_ind is None:
-            # Delete apps on all running controllers
-            for ctrl in self.controllers:
-                for test_id in ctrl.list():
-                    ctrl.delete(test_id)
-        elif self.controller_exist(controller_ind):
-            # Delete apps on controller_ind controller
-            for test_id in self.controllers[controller_ind].list():
-                self.controllers[controller_ind].delete(test_id)
+        for test_id in self.controller.list():
+            self.controller.delete(test_id)
 
-    def list(self, controller_ind: int, format: str):
-        """ list all tests in the specified controller or all of them.
-
-        Parameters
-        ----------
-        controller_ind: int or None
-            non-negative integer as an index of target controller
-            or None for all controller
-
-        """
-
-        print("list of apps or call apps' list methods")
-        if controller_ind is None:
-            ctrl_list = []
-            # Get info of apps on all running controllers
-            for ctrl in self.controllers:
-                ctrl_list.append(ctrl.list(format))
-            return ctrl_list
-        elif self.controller_exist(controller_ind):
-            return self.controllers[controller_ind].list(format)
-
-    def info(self, format: str, controller_ind: int or None = None):
+    def info(self, format: str):
         """ info of all tests in the specified controller or all of them.
-
-        Parameters
-        ----------
-        controller_ind: int or None
-            non-negative integer as an index of target controller
-            or None for all controller
 
         """
 
         info_list = []
-        if controller_ind is None:
-            # Get info of apps on all running controllers
-            for ctrl in self.controllers:
-                for test_id in ctrl.list():
-                    info_list.append([ctrl.controller_host, ctrl.info(test_id, format)])
-        elif self.controller_exist(controller_ind):
-            # Get info of apps on controller_ind controller
-            ctrl = self.controllers[controller_ind]
-            for test_id in ctrl.list():
-                info_list.append([ctrl.controller_host, ctrl.info(test_id, format)])
+        for test_id in self.controller.list():
+            info_list.append(self.controller.info(test_id, format))
         return info_list
-
-    def controller_exist(self, controller_ind):
-        """ Check either the controller index is valis or not.
-
-        Parameters
-        ----------
-        controller_ind
-
-        """
-        if 0 <= controller_ind < len(self.controllers):
-            return True
-        print(f"Value error: Controller index is out of range."
-              f"The controller index of {controller_ind} is out of list."
-              f"Controller indices: [{list(range(len(self.controllers)))}]")
-        return False
-
