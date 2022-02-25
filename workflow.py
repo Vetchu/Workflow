@@ -9,9 +9,6 @@ class TestWorkFlow(abc.ABC):
     Attributes:
     -----------
         apps: list of instances of TestApp in the workflow
-        executed_app: int
-            Indicator of the executed app
-            Default = 0
         controller: an instance of Controller class
         default_res_dir_name: str
             the dir-name of apps' results
@@ -28,7 +25,6 @@ class TestWorkFlow(abc.ABC):
 
     def __init__(self, controller_host: str, channel: str, query_interval: int):
         self.apps = []
-        self.executed_app = 0
         self.controller = Controller(controller_host, channel, query_interval)
         self.default_res_dir_name = "AppResSults"
 

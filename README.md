@@ -131,6 +131,49 @@ default_res_name: str
 ```
 
 ## TestWorkFlow
+The TestWorkFlow class is an abstract class that provides basic functionalities for general workflows.
+It asks developers to extend it and implement run() and register_app methods.
+### Attributes
+#### apps
+It includes a list of instances of TestApp class as apps that should be run in the workflow.
+The order of registering apps will be preserved, however, developers can run them in any arbitrary manner.
+#### controller
+An instance of Controller class that helps developers to have same operations for all running test-runs with different apps.
+#### default_res_dir_name
+It is a name for the result directory that contains all extracted results from the zip file for each client in each app.
+This directory provides the data for the upcoming app. 
+### Methods
+ 
+#### Registering an app: `def register_app(self)`
+This abstract method should be implemented by developers to register apps into the workflow. The apps will be added to the `self.apps`
+list and will be available in the run method to be executed.
 
-## Tips for implementing and running workflows  
-The name of the extended class should always be `WorkFlow`.
+#### Running the workflow: `def run(self)`
+It is another abstract method tha should be implemented by developers to run the workflow.
+Developers can implement an arbitrary flow of app execution when they have access to the data and results of each app.
+
+#### Registering a TestApp instance `def register(self, app)`
+Adding `TestApp` instance to the app list and logging the apps attributes.
+
+#### Stopping all running apps on the WF's controller: `def stop(self)`
+Stop all test-runs in the controller.
+#### Deleting all the running containers in the WF: `def delete(self)`
+Delete all test-runs in the controller.
+
+#### Getting information of all running test-runs in the WF's controller: `def info(self, format: str)`
+info of all tests in the specified controller or all of them.
+
+## Tips for implementing and running workflows
+For implementing a desired workflow, developers should extend `TestWorkFlow` class and implement `register_apps` and `run` methods.
+The name of the extended class should always be `WorkFlow` and it asks for the controller address, channel, and query interval for querying the controller.
+After implementing the workflow, developers can run it using FeatureCloud pip package:
+
+```angular2html
+sudo featurecloud workflow start --wf-dir <WORKFLOW_FILE_Path> --wf-file <NAME> --controller-host <CONTROLLER> --channel <> --query-interval <>
+```
+
+Beware that due to the file permissions, the workflow should be run using supper-user access.
+ALl the data and results will be available in the controller's data directory. In fact, data for the first app should be provided 
+in `app{app_n}` folder. Where `app_n` is the index the target app in WF's `apps` list. The same numbering applies for all the registered
+apps, and results will be directly moved into the next app's directory. Even though the controller write result zip
+files in `tests` directory, for each app, the extracted results will be available in corresponding app folder in `data` directory.
