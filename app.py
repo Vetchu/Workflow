@@ -121,7 +121,9 @@ class TestApp(Controller):
         """ Check either the app status is finished.
 
         """
-        df = self.info(test_id=self.test_id, format='dataframe')
+        df, msg = self.info(test_id=self.test_id, format='dataframe')
+        if df is None:
+            print(msg)
         return df.status.values == "finished"
 
     def clean_dirs(self, def_re_dir: str):
