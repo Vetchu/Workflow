@@ -14,4 +14,4 @@ class Controller:
         self.list = partial(commands.list, controller_host=controller_host)
         self.traffic = partial(commands.traffic, controller_host=controller_host)
         self.logs = partial(commands.logs, controller_host=controller_host)
-        self.info = partial(commands.info, controller_host=controller_host, echo=False)
+        self.info = partial(commands.info, controller_host=controller_host)
