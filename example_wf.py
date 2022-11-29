@@ -8,7 +8,6 @@ class WorkFlow(TestWorkFlow):
     """ Example workflow containing following apps:
         1- featurecloud.ai/fc_cross_validation
         2- featurecloud.ai/basic_rf
-        3- featurecloud.ai/fc_roc
 
         Methods:
         --------
@@ -19,12 +18,12 @@ class WorkFlow(TestWorkFlow):
     def __init__(self, controller_host: str, channel: str, query_interval: int):
         super().__init__(controller_host, channel, query_interval)
 
-        self.controller_path = "/home/mohammad/PycharmProjects/FeatureCloud/data"
+        self.controller_path = "/mnt/c/home/Workspace/featurecloud/data"
         self.ctrl_data_path = f"{self.controller_path}"
         self.ctrl_test_path = f"{self.controller_path}/tests"
 
         self.generic_dir = {}
-        self.n_clients = 2
+        self.n_clients = 1
         self.TestApp = partial(TestApp,
                                n_clients=self.n_clients,
                                ctrl_data_path=self.ctrl_data_path,
@@ -38,16 +37,13 @@ class WorkFlow(TestWorkFlow):
 
         """
         app_id = 0
-        app1 = self.TestApp(app_id=app_id, app_image="featurecloud.ai/fc_cross_validation")
+        app1 = self.TestApp(app_id=app_id, app_image="featurecloud.ai/fl-cfr-test")
         self.register(app1)
 
         app_id += 1
         app2 = self.TestApp(app_id=app_id, app_image="featurecloud.ai/basic_rf")
         self.register(app2)
 
-        app_id += 1
-        app3 = self.TestApp(app_id=app_id, app_image="featurecloud.ai/fc_roc")
-        self.register(app3)
 
     def run(self):
         """ Running apps with the same registration order,
@@ -63,7 +59,7 @@ class WorkFlow(TestWorkFlow):
         print("Workflow execution starts ...")
         for i, app in enumerate(self.apps):
             app.clean_dirs(self.default_res_dir_name)
-            id, _ = app.start()
+            id = app.start()
             app.set_id(id)
             print(f"{app.app_image}(ID: {app.test_id}) is running ...")
             app.wait_until_finishes()

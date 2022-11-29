@@ -26,7 +26,7 @@ class TestWorkFlow(abc.ABC):
     def __init__(self, controller_host: str, channel: str, query_interval: int):
         self.apps = []
         self.controller = Controller(controller_host, channel, query_interval)
-        self.default_res_dir_name = "AppResSults"
+        self.default_res_dir_name = "results"
 
     @abc.abstractmethod
     def register_apps(self):
