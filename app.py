@@ -75,7 +75,7 @@ class TestApp(Controller):
         test_id: int
         """
         self.test_id = test_id
-        self.delete = partial(self.delete, test_id=self.test_id, what='')
+        self.delete = partial(self.delete, test_id=self.test_id, del_all=None)
 
     def extract_results(self, def_res_file: str):
         """ extract app's results zip files for all clients
@@ -90,7 +90,7 @@ class TestApp(Controller):
         """
         zip_files = [f for f in listdir(self.results_path) if f.endswith(".zip")]
         os.makedirs(self.results_path, exist_ok=True)
-        if len(zip_files) > 1:
+        if len(zip_files) > 0:
             print(f"Extracting the results of {self.app_image} ...")
             for zip_file in zip_files:
                 client_n = int(zip_file.strip().split("client_")[-1].strip().split("_")[0])
@@ -121,9 +121,8 @@ class TestApp(Controller):
         """ Check either the app status is finished.
 
         """
-        df, msg = self.info(test_id=self.test_id, format='dataframe')
-        if df is None:
-            print(msg)
+        import pprint
+        df = self.info(test_id=self.test_id, format='dataframe')
         return df.status.values == "finished"
 
     def clean_dirs(self, def_re_dir: str):
