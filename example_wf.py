@@ -68,8 +68,8 @@ class WorkFlow(TestWorkFlow):
             print("extracting the data...")
             while not app.results_ready:
                 sleep(5)
-            print("Delete the app container...")
-            app.delete()
+            # print("Delete the app container...")
+            # app.delete()
             if i < len(self.apps) - 1:
                 print(f"Move {app.app_image} results to the directory of the next app({self.apps[i + 1].app_image})")
                 app.copy_results(ctrl_data_path=self.ctrl_data_path,

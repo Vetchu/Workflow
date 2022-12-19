@@ -75,7 +75,7 @@ class TestApp(Controller):
         test_id: int
         """
         self.test_id = test_id
-        self.delete = partial(self.delete, test_id=self.test_id, del_all=None)
+        self.delete = partial(self.delete, test_id=self.test_id, del_all='')
 
     def extract_results(self, def_res_file: str):
         """ extract app's results zip files for all clients
